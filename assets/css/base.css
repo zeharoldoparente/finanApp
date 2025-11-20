@@ -43,14 +43,14 @@
 
    --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
       Ubuntu, Cantarell, sans-serif;
-   --font-size-xs: 12px;
-   --font-size-sm: 14px;
-   --font-size-base: 16px;
-   --font-size-lg: 18px;
-   --font-size-xl: 20px;
-   --font-size-2xl: 24px;
-   --font-size-3xl: 28px;
-   --font-size-4xl: 36px;
+   --font-size-xs: 11px;
+   --font-size-sm: 13px;
+   --font-size-base: 15px;
+   --font-size-lg: 17px;
+   --font-size-xl: 19px;
+   --font-size-2xl: 22px;
+   --font-size-3xl: 26px;
+   --font-size-4xl: 32px;
 
    --font-weight-normal: 400;
    --font-weight-medium: 500;
@@ -65,7 +65,34 @@
    --z-popover: 500;
    --z-tooltip: 600;
 
+   /* Mobile first - navbar no rodapé */
    --nav-height: 80px;
+   --sidebar-width: 0px;
+}
+
+/* Tablet */
+@media (min-width: 768px) {
+   :root {
+      --font-size-xs: 12px;
+      --font-size-sm: 14px;
+      --font-size-base: 16px;
+      --font-size-lg: 18px;
+      --font-size-xl: 20px;
+      --font-size-2xl: 24px;
+      --font-size-3xl: 28px;
+      --font-size-4xl: 36px;
+
+      /* Sidebar lateral ao invés de navbar rodapé */
+      --nav-height: 0px;
+      --sidebar-width: 240px;
+   }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+   :root {
+      --sidebar-width: 260px;
+   }
 }
 
 * {
@@ -78,6 +105,8 @@ html {
    font-size: 16px;
    -webkit-font-smoothing: antialiased;
    -moz-osx-font-smoothing: grayscale;
+   /* Previne zoom no iOS em inputs */
+   -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -91,7 +120,9 @@ body {
    );
    min-height: 100vh;
    padding-bottom: var(--nav-height);
+   padding-left: var(--sidebar-width);
    line-height: 1.5;
+   overflow-x: hidden;
 }
 
 h1,
@@ -149,11 +180,26 @@ button {
 
 .container {
    width: 100%;
-   max-width: 1200px;
+   max-width: 100%;
    margin: 0 auto;
-   padding: 0 var(--spacing-lg);
+   padding: 0 var(--spacing-md);
 }
 
+@media (min-width: 768px) {
+   .container {
+      padding: 0 var(--spacing-lg);
+      max-width: 1200px;
+   }
+}
+
+@media (min-width: 1024px) {
+   .container {
+      padding: 0 var(--spacing-2xl);
+      max-width: 1400px;
+   }
+}
+
+/* Utility Classes */
 .text-center {
    text-align: center;
 }
@@ -282,15 +328,19 @@ button {
    align-items: flex-end;
 }
 
-@media (max-width: 640px) {
-   :root {
-      --font-size-3xl: 24px;
-      --font-size-4xl: 32px;
-   }
+/* Responsivo para imagens */
+img {
+   max-width: 100%;
+   height: auto;
 }
 
-@media (min-width: 768px) {
-   body {
-      padding-bottom: 0;
+/* Touch targets mínimos de 44x44px para mobile */
+@media (max-width: 767px) {
+   button,
+   a,
+   input,
+   select,
+   textarea {
+      min-height: 44px;
    }
 }

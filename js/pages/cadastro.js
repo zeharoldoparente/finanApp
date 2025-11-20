@@ -17,6 +17,7 @@ class CadastroManager {
       this.setupButtons();
       this.renderAll();
    }
+
    loadData() {
       const savedData = localStorage.getItem("financeAppCadastros");
       if (savedData) {
@@ -111,12 +112,22 @@ class CadastroManager {
 
       this.saveData();
    }
+
+   // ✅ CORREÇÃO APLICADA AQUI!
    setupTabs() {
       const tabs = document.querySelectorAll(".tab");
       tabs.forEach((tab) => {
          tab.addEventListener("click", (e) => {
-            const tabName = e.target.dataset.tab;
-            this.switchTab(tabName);
+            e.preventDefault();
+            e.stopPropagation();
+
+            // ✅ USA currentTarget ao invés de target
+            const clickedTab = e.currentTarget;
+            const tabName = clickedTab.dataset.tab;
+
+            if (tabName) {
+               this.switchTab(tabName);
+            }
          });
       });
    }
@@ -133,6 +144,7 @@ class CadastroManager {
 
       this.currentTab = tabName;
    }
+
    setupButtons() {
       document.getElementById("addCartaoBtn")?.addEventListener("click", () => {
          this.openCartaoModal();
@@ -981,6 +993,7 @@ class CadastroManager {
       }).format(value);
    }
 }
+
 document.addEventListener("DOMContentLoaded", () => {
    window.cadastroManager = new CadastroManager();
 });

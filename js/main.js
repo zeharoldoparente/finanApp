@@ -19,6 +19,7 @@ function initializeApp() {
    setupGlobalListeners();
    loadUserData();
 }
+
 function setupGlobalListeners() {
    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
       anchor.addEventListener("click", (e) => {
@@ -26,6 +27,7 @@ function setupGlobalListeners() {
       });
    });
 }
+
 function loadUserData() {
    const userData = localStorage.getItem("financeAppData");
    if (userData) {
@@ -37,6 +39,7 @@ function loadUserData() {
       }
    }
 }
+
 function saveUserData(data) {
    try {
       localStorage.setItem("financeAppData", JSON.stringify(data));
@@ -45,12 +48,14 @@ function saveUserData(data) {
       console.error("Erro ao salvar dados:", error);
    }
 }
+
 function formatCurrency(value) {
    return new Intl.NumberFormat(APP_CONFIG.locale, {
       style: "currency",
       currency: APP_CONFIG.currency,
    }).format(value);
 }
+
 function formatDate(date, options = {}) {
    const defaultOptions = {
       year: "numeric",

@@ -1,13 +1,13 @@
 .dashboard {
-   padding: 0 var(--spacing-lg) var(--spacing-lg);
+   padding: 0 var(--spacing-md) var(--spacing-lg);
 }
 
 .dashboard__header {
-   margin-bottom: var(--spacing-lg);
+   margin-bottom: var(--spacing-md);
 }
 
 .dashboard__section {
-   margin-bottom: var(--spacing-xl);
+   margin-bottom: var(--spacing-lg);
 }
 
 .dashboard__section-title {
@@ -15,15 +15,15 @@
    font-weight: var(--font-weight-semibold);
    color: var(--nav-item-active);
    margin-bottom: var(--spacing-md);
-   padding: 0 var(--spacing-lg);
+   padding: 0 var(--spacing-md);
 }
 
 .quick-stats {
    display: grid;
    grid-template-columns: repeat(2, 1fr);
    gap: var(--spacing-sm);
-   padding: 0 var(--spacing-lg);
-   margin-bottom: var(--spacing-lg);
+   padding: 0 var(--spacing-md);
+   margin-bottom: var(--spacing-md);
 }
 
 .quick-stat {
@@ -47,8 +47,8 @@
 
 .chart-container {
    background: var(--bg-primary);
-   border-radius: var(--radius-xl);
-   padding: var(--spacing-xl);
+   border-radius: var(--radius-lg);
+   padding: var(--spacing-lg);
    min-height: 200px;
    display: flex;
    align-items: center;
@@ -56,20 +56,50 @@
    color: var(--text-secondary);
 }
 
+/* Tablet */
 @media (min-width: 768px) {
    .dashboard {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: var(--spacing-2xl);
+      padding: var(--spacing-lg);
+   }
+
+   .dashboard__section {
+      margin-bottom: var(--spacing-xl);
+   }
+
+   .dashboard__header {
+      margin-bottom: var(--spacing-lg);
    }
 
    .quick-stats {
       grid-template-columns: repeat(4, 1fr);
+      gap: var(--spacing-md);
+      padding: 0 var(--spacing-lg);
+      margin-bottom: var(--spacing-lg);
+   }
+
+   .quick-stat {
+      padding: var(--spacing-lg);
+   }
+
+   .chart-container {
+      border-radius: var(--radius-xl);
+      padding: var(--spacing-xl);
+      min-height: 250px;
    }
 }
 
+/* Desktop */
 @media (min-width: 1024px) {
    .dashboard {
       max-width: 1000px;
+      margin: 0 auto;
+      padding: var(--spacing-2xl);
+   }
+}
+
+/* Desktop Large */
+@media (min-width: 1440px) {
+   .dashboard {
+      max-width: 1200px;
    }
 }
