@@ -113,7 +113,6 @@ class CadastroManager {
       this.saveData();
    }
 
-   // ✅ CORREÇÃO APLICADA AQUI!
    setupTabs() {
       const tabs = document.querySelectorAll(".tab");
       tabs.forEach((tab) => {
@@ -121,7 +120,6 @@ class CadastroManager {
             e.preventDefault();
             e.stopPropagation();
 
-            // ✅ USA currentTarget ao invés de target
             const clickedTab = e.currentTarget;
             const tabName = clickedTab.dataset.tab;
 

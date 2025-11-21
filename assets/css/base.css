@@ -65,12 +65,10 @@
    --z-popover: 500;
    --z-tooltip: 600;
 
-   /* Mobile first - navbar no rodapé */
    --nav-height: 80px;
    --sidebar-width: 0px;
 }
 
-/* Tablet */
 @media (min-width: 768px) {
    :root {
       --font-size-xs: 12px;
@@ -82,13 +80,11 @@
       --font-size-3xl: 28px;
       --font-size-4xl: 36px;
 
-      /* Sidebar lateral ao invés de navbar rodapé */
       --nav-height: 0px;
       --sidebar-width: 240px;
    }
 }
 
-/* Desktop */
 @media (min-width: 1024px) {
    :root {
       --sidebar-width: 260px;
@@ -105,7 +101,6 @@ html {
    font-size: 16px;
    -webkit-font-smoothing: antialiased;
    -moz-osx-font-smoothing: grayscale;
-   /* Previne zoom no iOS em inputs */
    -webkit-text-size-adjust: 100%;
 }
 
@@ -199,7 +194,6 @@ button {
    }
 }
 
-/* Utility Classes */
 .text-center {
    text-align: center;
 }
@@ -328,13 +322,11 @@ button {
    align-items: flex-end;
 }
 
-/* Responsivo para imagens */
 img {
    max-width: 100%;
    height: auto;
 }
 
-/* Touch targets mínimos de 44x44px para mobile */
 @media (max-width: 767px) {
    button,
    a,

@@ -56,7 +56,6 @@
    color: var(--text-secondary);
 }
 
-/* Tablet */
 @media (min-width: 768px) {
    .dashboard {
       padding: var(--spacing-lg);
@@ -88,7 +87,6 @@
    }
 }
 
-/* Desktop */
 @media (min-width: 1024px) {
    .dashboard {
       max-width: 1000px;
@@ -97,7 +95,6 @@
    }
 }
 
-/* Desktop Large */
 @media (min-width: 1440px) {
    .dashboard {
       max-width: 1200px;

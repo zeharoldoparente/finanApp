@@ -159,7 +159,6 @@
    height: 24px;
 }
 
-/* Tablet */
 @media (min-width: 768px) {
    .cadastro {
       padding: 0 0 var(--spacing-lg);
@@ -211,7 +210,6 @@
    }
 }
 
-/* Desktop */
 @media (min-width: 1024px) {
    .cadastro__content {
       max-width: 1000px;

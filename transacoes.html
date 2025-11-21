@@ -7,18 +7,198 @@
       <title>Transações - Controle Financeiro</title>
       <link rel="stylesheet" href="./assets/css/base.css" />
       <link rel="stylesheet" href="./assets/css/components.css" />
+      <link rel="stylesheet" href="./assets/css/pages/transacoes.css" />
    </head>
    <body>
       <header class="header">
          <h1 class="header__title">Transações</h1>
-         <p class="header__subtitle">Histórico completo</p>
+         <p class="header__subtitle">
+            Controle completo de receitas e despesas
+         </p>
       </header>
-      <main class="container">
-         <div class="card">
-            <h2 class="card__title">Em Desenvolvimento</h2>
-            <p>Esta página está sendo desenvolvida.</p>
+
+      <main class="transacoes">
+         <!-- Ações principais -->
+         <div class="transacoes__actions">
+            <button
+               class="btn btn-primary transacoes__btn-add"
+               id="btnNovaTransacao"
+            >
+               <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+               >
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+               </svg>
+               Nova Transação
+            </button>
+         </div>
+
+         <!-- Filtros -->
+         <div class="filtros">
+            <div class="filtros__toggle" id="filtrosToggle">
+               <span class="filtros__toggle-text">Filtros</span>
+               <svg
+                  class="filtros__toggle-icon"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+               >
+                  <polyline points="6 9 12 15 18 9"></polyline>
+               </svg>
+            </div>
+
+            <div class="filtros__content" id="filtrosContent">
+               <div class="filtros__grid">
+                  <div class="form-group">
+                     <label class="form-label">Período</label>
+                     <select class="form-select" id="filtroPeriodo">
+                        <option value="mes-atual">Mês Atual</option>
+                        <option value="mes-anterior">Mês Anterior</option>
+                        <option value="ultimos-30">Últimos 30 dias</option>
+                        <option value="ultimos-90">Últimos 90 dias</option>
+                        <option value="ano-atual">Ano Atual</option>
+                        <option value="personalizado">Personalizado</option>
+                     </select>
+                  </div>
+
+                  <div class="form-group">
+                     <label class="form-label">Tipo</label>
+                     <select class="form-select" id="filtroTipo">
+                        <option value="todos">Todos</option>
+                        <option value="receita">Receitas</option>
+                        <option value="despesa">Despesas</option>
+                     </select>
+                  </div>
+
+                  <div class="form-group">
+                     <label class="form-label">Status</label>
+                     <select class="form-select" id="filtroStatus">
+                        <option value="todos">Todos</option>
+                        <option value="pendente">Pendentes</option>
+                        <option value="pago">Pagos</option>
+                        <option value="atrasado">Atrasados</option>
+                        <option value="agendado">Agendados</option>
+                     </select>
+                  </div>
+
+                  <div class="form-group">
+                     <label class="form-label">Categoria</label>
+                     <select class="form-select" id="filtroCategoria">
+                        <option value="todas">Todas</option>
+                     </select>
+                  </div>
+
+                  <div class="form-group">
+                     <label class="form-label">Método de Pagamento</label>
+                     <select class="form-select" id="filtroMetodo">
+                        <option value="todos">Todos</option>
+                        <option value="debito">Débito</option>
+                        <option value="credito">Crédito</option>
+                        <option value="pix">PIX</option>
+                        <option value="boleto">Boleto</option>
+                        <option value="dinheiro">Dinheiro</option>
+                        <option value="transferencia">Transferência</option>
+                     </select>
+                  </div>
+
+                  <div class="form-group">
+                     <label class="form-label">Ordenar por</label>
+                     <select class="form-select" id="filtroOrdem">
+                        <option value="data-desc">Data (Mais recente)</option>
+                        <option value="data-asc">Data (Mais antiga)</option>
+                        <option value="valor-desc">Valor (Maior)</option>
+                        <option value="valor-asc">Valor (Menor)</option>
+                     </select>
+                  </div>
+               </div>
+
+               <div class="filtros__actions">
+                  <button class="btn btn-primary" id="btnAplicarFiltros">
+                     Aplicar
+                  </button>
+                  <button class="btn btn-secondary" id="btnLimparFiltros">
+                     Limpar
+                  </button>
+               </div>
+            </div>
+         </div>
+
+         <!-- Resumo Rápido -->
+         <div class="resumo-rapido">
+            <div class="resumo-card">
+               <div class="resumo-card__label">Receitas</div>
+               <div class="resumo-card__valor resumo-card__valor--receita">
+                  <span class="resumo-card__icon">↑</span>
+                  <span id="resumoReceitas">R$ 0,00</span>
+               </div>
+            </div>
+
+            <div class="resumo-card">
+               <div class="resumo-card__label">Despesas</div>
+               <div class="resumo-card__valor resumo-card__valor--despesa">
+                  <span class="resumo-card__icon">↓</span>
+                  <span id="resumoDespesas">R$ 0,00</span>
+               </div>
+            </div>
+
+            <div class="resumo-card">
+               <div class="resumo-card__label">Saldo</div>
+               <div class="resumo-card__valor resumo-card__valor--saldo">
+                  <span class="resumo-card__icon">∑</span>
+                  <span id="resumoSaldo">R$ 0,00</span>
+               </div>
+            </div>
+         </div>
+
+         <!-- Lista de Transações -->
+         <div class="transacoes-lista" id="transacoesLista">
+            <!-- Será preenchido via JavaScript -->
+         </div>
+
+         <!-- Empty State -->
+         <div
+            class="transacoes-empty"
+            id="transacoesEmpty"
+            style="display: none"
+         >
+            <div class="transacoes-empty__icone">💰</div>
+            <h3 class="transacoes-empty__titulo">
+               Nenhuma transação encontrada
+            </h3>
+            <p class="transacoes-empty__descricao">
+               Adicione sua primeira transação para começar a controlar suas
+               finanças
+            </p>
+            <button
+               class="btn btn-primary"
+               onclick="document.getElementById('btnNovaTransacao').click()"
+            >
+               Nova Transação
+            </button>
+         </div>
+
+         <!-- Loading -->
+         <div
+            class="transacoes-loading"
+            id="transacoesLoading"
+            style="display: none"
+         >
+            <div class="spinner transacoes-loading__spinner"></div>
+            <p class="transacoes-loading__texto">Carregando transações...</p>
          </div>
       </main>
+
+      <!-- Modal Container -->
+      <div id="modalContainer"></div>
+
+      <!-- Navbar -->
       <nav class="nav-bar">
          <div class="nav-item" data-page="index">
             <div class="nav-icon">
@@ -66,7 +246,10 @@
             <span class="nav-label">Perfil</span>
          </div>
       </nav>
+
+      <script src="./js/models/finance-models.js"></script>
       <script src="./js/components/navigation.js"></script>
+      <script src="./js/pages/transacoes.js"></script>
       <script src="./js/main.js"></script>
    </body>
 </html>

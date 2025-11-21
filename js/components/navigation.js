@@ -22,12 +22,10 @@ class Navigation {
    }
 
    createSidebar() {
-      // Verifica se já existe sidebar
       if (document.querySelector(".sidebar")) {
          return;
       }
 
-      // Cria sidebar apenas para desktop
       if (window.innerWidth >= 768) {
          const sidebar = document.createElement("aside");
          sidebar.className = "sidebar";
@@ -85,7 +83,6 @@ class Navigation {
 
          document.body.insertBefore(sidebar, document.body.firstChild);
 
-         // Adiciona listeners aos itens da sidebar
          const sidebarItems = sidebar.querySelectorAll(".sidebar__item");
          sidebarItems.forEach((item) => {
             item.addEventListener("click", (e) => this.handleNavClick(e, item));
@@ -94,12 +91,10 @@ class Navigation {
    }
 
    setActivePage() {
-      // Remove active de todos
       document.querySelectorAll(".nav-item, .sidebar__item").forEach((item) => {
          item.classList.remove("active");
       });
 
-      // Adiciona active ao item da página atual
       document
          .querySelectorAll(
             `.nav-item[data-page="${this.currentPage}"], .sidebar__item[data-page="${this.currentPage}"]`
@@ -110,13 +105,10 @@ class Navigation {
    }
 
    attachEventListeners() {
-      // Navbar rodapé (mobile)
       const navItems = document.querySelectorAll(".nav-item");
       navItems.forEach((item) => {
          item.addEventListener("click", (e) => this.handleNavClick(e, item));
       });
-
-      // Sidebar items já foram adicionados no createSidebar
    }
 
    handleNavClick(e, item) {
@@ -129,12 +121,10 @@ class Navigation {
          return;
       }
 
-      // Remove active de todos
       document
          .querySelectorAll(".nav-item, .sidebar__item")
          .forEach((navItem) => navItem.classList.remove("active"));
 
-      // Adiciona active ao clicado
       document
          .querySelectorAll(
             `.nav-item[data-page="${targetPage}"], .sidebar__item[data-page="${targetPage}"]`
@@ -164,14 +154,11 @@ class Navigation {
             const wasMobile = this.isMobile;
             this.isMobile = window.innerWidth < 768;
 
-            // Se mudou de mobile para desktop ou vice-versa
             if (wasMobile !== this.isMobile) {
                if (!this.isMobile) {
-                  // Mudou para desktop - cria sidebar
                   this.createSidebar();
                   this.setActivePage();
                } else {
-                  // Mudou para mobile - remove sidebar
                   const sidebar = document.querySelector(".sidebar");
                   if (sidebar) {
                      sidebar.remove();
