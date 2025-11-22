@@ -16,9 +16,7 @@
             Controle completo de receitas e despesas
          </p>
       </header>
-
       <main class="transacoes">
-         <!-- Ações principais -->
          <div class="transacoes__actions">
             <button
                class="btn btn-primary transacoes__btn-add"
@@ -36,11 +34,10 @@
                Nova Transação
             </button>
          </div>
-
-         <!-- Filtros -->
+         <div id="monthNavigatorContainer"></div>
          <div class="filtros">
             <div class="filtros__toggle" id="filtrosToggle">
-               <span class="filtros__toggle-text">Filtros</span>
+               <span class="filtros__toggle-text">🔍 Filtros Avançados</span>
                <svg
                   class="filtros__toggle-icon"
                   width="20"
@@ -56,18 +53,6 @@
 
             <div class="filtros__content" id="filtrosContent">
                <div class="filtros__grid">
-                  <div class="form-group">
-                     <label class="form-label">Período</label>
-                     <select class="form-select" id="filtroPeriodo">
-                        <option value="mes-atual">Mês Atual</option>
-                        <option value="mes-anterior">Mês Anterior</option>
-                        <option value="ultimos-30">Últimos 30 dias</option>
-                        <option value="ultimos-90">Últimos 90 dias</option>
-                        <option value="ano-atual">Ano Atual</option>
-                        <option value="personalizado">Personalizado</option>
-                     </select>
-                  </div>
-
                   <div class="form-group">
                      <label class="form-label">Tipo</label>
                      <select class="form-select" id="filtroTipo">
@@ -129,8 +114,6 @@
                </div>
             </div>
          </div>
-
-         <!-- Resumo Rápido -->
          <div class="resumo-rapido">
             <div class="resumo-card">
                <div class="resumo-card__label">Receitas</div>
@@ -156,13 +139,7 @@
                </div>
             </div>
          </div>
-
-         <!-- Lista de Transações -->
-         <div class="transacoes-lista" id="transacoesLista">
-            <!-- Será preenchido via JavaScript -->
-         </div>
-
-         <!-- Empty State -->
+         <div class="transacoes-lista" id="transacoesLista"></div>
          <div
             class="transacoes-empty"
             id="transacoesEmpty"
@@ -170,11 +147,11 @@
          >
             <div class="transacoes-empty__icone">💰</div>
             <h3 class="transacoes-empty__titulo">
-               Nenhuma transação encontrada
+               Nenhuma transação neste período
             </h3>
             <p class="transacoes-empty__descricao">
-               Adicione sua primeira transação para começar a controlar suas
-               finanças
+               Use os botões de navegação para ver outros meses ou adicione uma
+               nova transação
             </p>
             <button
                class="btn btn-primary"
@@ -183,8 +160,6 @@
                Nova Transação
             </button>
          </div>
-
-         <!-- Loading -->
          <div
             class="transacoes-loading"
             id="transacoesLoading"
@@ -194,11 +169,7 @@
             <p class="transacoes-loading__texto">Carregando transações...</p>
          </div>
       </main>
-
-      <!-- Modal Container -->
       <div id="modalContainer"></div>
-
-      <!-- Navbar -->
       <nav class="nav-bar">
          <div class="nav-item" data-page="index">
             <div class="nav-icon">
@@ -249,6 +220,7 @@
 
       <script src="./js/models/finance-models.js"></script>
       <script src="./js/components/navigation.js"></script>
+      <script src="./js/components/month-navigator.js"></script>
       <script src="./js/pages/transacoes.js"></script>
       <script src="./js/main.js"></script>
    </body>

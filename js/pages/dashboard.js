@@ -1,10 +1,13 @@
 class DashboardManager {
    constructor() {
       this.dados = null;
+      this.monthNavigator = null;
+      this.currentPeriod = null;
       this.init();
    }
 
    init() {
+      this.setupMonthNavigator();
       this.carregarDados();
       this.renderizar();
 
@@ -12,6 +15,17 @@ class DashboardManager {
          this.carregarDados();
          this.renderizar();
       });
+   }
+   setupMonthNavigator() {
+      this.monthNavigator = new MonthNavigator(
+         "monthNavigatorContainer",
+         (period) => {
+            this.currentPeriod = period;
+            this.carregarDados();
+            this.renderizar();
+         }
+      );
+      this.currentPeriod = this.monthNavigator.getCurrentPeriod();
    }
 
    carregarDados() {
@@ -44,9 +58,8 @@ class DashboardManager {
    }
 
    processarDados(transacoes, categorias, contas) {
-      const hoje = new Date();
-      const primeiroDiaMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
-      const ultimoDiaMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
+      const primeiroDiaMes = this.currentPeriod.firstDay;
+      const ultimoDiaMes = this.currentPeriod.lastDay;
 
       const transacoesMesAtual = transacoes.filter((t) => {
          const data = new Date(t.data_vencimento + "T00:00:00");
@@ -57,9 +70,10 @@ class DashboardManager {
          if (t.valorPago !== null && t.valorPago !== undefined) {
             t.status = "pago";
          } else {
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
             const vencimento = new Date(t.data_vencimento + "T00:00:00");
             vencimento.setHours(0, 0, 0, 0);
-            hoje.setHours(0, 0, 0, 0);
 
             if (vencimento < hoje) {
                t.status = "atrasado";
@@ -141,12 +155,13 @@ class DashboardManager {
          (acc, conta) => acc + (conta.saldo || 0),
          0
       );
+      const mesAtual = primeiroDiaMes.toLocaleDateString("pt-BR", {
+         month: "long",
+         year: "numeric",
+      });
 
       return {
-         mesAtual: new Date().toLocaleDateString("pt-BR", {
-            month: "long",
-            year: "numeric",
-         }),
+         mesAtual,
          saldoTotal,
          totalReceitas,
          totalDespesas,
@@ -285,7 +300,7 @@ class DashboardManager {
          container.innerHTML = `
             <div style="text-align: center; padding: 40px; color: var(--text-secondary);">
                <div style="font-size: 48px; margin-bottom: 16px;">📊</div>
-               <p>Nenhuma despesa registrada este mês</p>
+               <p>Nenhuma despesa registrada neste mês</p>
             </div>
          `;
          return;

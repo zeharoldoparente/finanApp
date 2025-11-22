@@ -21,6 +21,100 @@
    min-width: 200px;
 }
 
+.month-navigator {
+   background: var(--bg-primary);
+   border-radius: var(--radius-lg);
+   padding: var(--spacing-md);
+   margin-bottom: var(--spacing-md);
+   box-shadow: var(--shadow-sm);
+   display: flex;
+   align-items: center;
+   justify-content: space-between;
+   gap: var(--spacing-md);
+}
+
+.month-navigator__controls {
+   display: flex;
+   align-items: center;
+   gap: var(--spacing-sm);
+   flex: 1;
+}
+
+.month-navigator__btn {
+   width: 40px;
+   height: 40px;
+   min-width: 40px;
+   border-radius: var(--radius-md);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   background: var(--bg-secondary);
+   color: var(--text-primary);
+   border: none;
+   cursor: pointer;
+   transition: all var(--transition-base);
+}
+
+.month-navigator__btn:hover {
+   background: var(--bg-tertiary);
+   transform: scale(1.05);
+}
+
+.month-navigator__btn:active {
+   transform: scale(0.95);
+}
+
+.month-navigator__btn svg {
+   width: 18px;
+   height: 18px;
+}
+
+.month-navigator__current {
+   flex: 1;
+   text-align: center;
+   display: flex;
+   flex-direction: column;
+   gap: 2px;
+}
+
+.month-navigator__month {
+   font-size: var(--font-size-lg);
+   font-weight: var(--font-weight-semibold);
+   color: var(--text-primary);
+   text-transform: capitalize;
+}
+
+.month-navigator__year {
+   font-size: var(--font-size-xs);
+   color: var(--text-secondary);
+}
+
+.month-navigator__today {
+   padding: var(--spacing-sm) var(--spacing-md);
+   border-radius: var(--radius-md);
+   background: linear-gradient(
+      135deg,
+      var(--primary-gradient-start) 0%,
+      var(--primary-gradient-end) 100%
+   );
+   color: white;
+   border: none;
+   cursor: pointer;
+   font-size: var(--font-size-sm);
+   font-weight: var(--font-weight-medium);
+   white-space: nowrap;
+   transition: all var(--transition-base);
+}
+
+.month-navigator__today:hover {
+   transform: translateY(-2px);
+   box-shadow: var(--shadow-md);
+}
+
+.month-navigator__today:active {
+   transform: translateY(0);
+}
+
 .filtros {
    background: var(--bg-primary);
    border-radius: var(--radius-lg);
@@ -77,6 +171,30 @@
 @media (min-width: 768px) {
    .filtros__grid {
       grid-template-columns: repeat(3, 1fr);
+   }
+
+   .month-navigator {
+      padding: var(--spacing-lg);
+      border-radius: var(--radius-xl);
+   }
+
+   .month-navigator__btn {
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+   }
+
+   .month-navigator__month {
+      font-size: var(--font-size-xl);
+   }
+
+   .month-navigator__year {
+      font-size: var(--font-size-sm);
+   }
+
+   .month-navigator__today {
+      padding: var(--spacing-md) var(--spacing-lg);
+      font-size: var(--font-size-base);
    }
 }
 

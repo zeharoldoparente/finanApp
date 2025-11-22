@@ -4,8 +4,9 @@ class TransacoesManager {
       this.categorias = [];
       this.cartoes = [];
       this.contas = [];
+      this.monthNavigator = null;
+      this.currentPeriod = null;
       this.filtros = {
-         periodo: "mes-atual",
          tipo: "todos",
          status: "todos",
          categoria: "todas",
@@ -19,8 +20,20 @@ class TransacoesManager {
    init() {
       this.loadData();
       this.setupEventListeners();
+      this.setupMonthNavigator();
       this.carregarCategorias();
       this.renderizar();
+   }
+
+   setupMonthNavigator() {
+      this.monthNavigator = new MonthNavigator(
+         "monthNavigatorContainer",
+         (period) => {
+            this.currentPeriod = period;
+            this.renderizar();
+         }
+      );
+      this.currentPeriod = this.monthNavigator.getCurrentPeriod();
    }
 
    loadData() {
@@ -216,7 +229,6 @@ class TransacoesManager {
    }
 
    aplicarFiltros() {
-      this.filtros.periodo = document.getElementById("filtroPeriodo").value;
       this.filtros.tipo = document.getElementById("filtroTipo").value;
       this.filtros.status = document.getElementById("filtroStatus").value;
       this.filtros.categoria = document.getElementById("filtroCategoria").value;
@@ -228,7 +240,6 @@ class TransacoesManager {
 
    limparFiltros() {
       this.filtros = {
-         periodo: "mes-atual",
          tipo: "todos",
          status: "todos",
          categoria: "todas",
@@ -236,7 +247,6 @@ class TransacoesManager {
          ordem: "data-desc",
       };
 
-      document.getElementById("filtroPeriodo").value = "mes-atual";
       document.getElementById("filtroTipo").value = "todos";
       document.getElementById("filtroStatus").value = "todos";
       document.getElementById("filtroCategoria").value = "todas";
@@ -249,35 +259,14 @@ class TransacoesManager {
    aplicarFiltrosInternos() {
       let resultado = [...this.transacoes];
 
-      const hoje = new Date();
-      const primeiroDiaMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
-      const ultimoDiaMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
-
-      switch (this.filtros.periodo) {
-         case "mes-atual":
-            resultado = resultado.filter((t) => {
-               const data = new Date(t.data_vencimento + "T00:00:00");
-               return data >= primeiroDiaMes && data <= ultimoDiaMes;
-            });
-            break;
-         case "mes-anterior":
-            const primeiroDiaMesAnterior = new Date(
-               hoje.getFullYear(),
-               hoje.getMonth() - 1,
-               1
+      if (this.currentPeriod) {
+         resultado = resultado.filter((t) => {
+            const data = new Date(t.data_vencimento + "T00:00:00");
+            return (
+               data >= this.currentPeriod.firstDay &&
+               data <= this.currentPeriod.lastDay
             );
-            const ultimoDiaMesAnterior = new Date(
-               hoje.getFullYear(),
-               hoje.getMonth(),
-               0
-            );
-            resultado = resultado.filter((t) => {
-               const data = new Date(t.data_vencimento + "T00:00:00");
-               return (
-                  data >= primeiroDiaMesAnterior && data <= ultimoDiaMesAnterior
-               );
-            });
-            break;
+         });
       }
 
       if (this.filtros.tipo !== "todos") {
@@ -286,6 +275,18 @@ class TransacoesManager {
 
       if (this.filtros.status !== "todos") {
          resultado = resultado.filter((t) => t.status === this.filtros.status);
+      }
+
+      if (this.filtros.categoria !== "todas") {
+         resultado = resultado.filter(
+            (t) => t.categoria_id === parseInt(this.filtros.categoria)
+         );
+      }
+
+      if (this.filtros.metodo !== "todos") {
+         resultado = resultado.filter(
+            (t) => t.metodo_pagamento === this.filtros.metodo
+         );
       }
 
       resultado.sort((a, b) => {
@@ -354,7 +355,7 @@ class TransacoesManager {
 
       if (empty) empty.style.display = "none";
 
-      const grupos = this.agruparPorMes(transacoesFiltradas);
+      const grupos = this.agruporPorMes(transacoesFiltradas);
 
       grupos.forEach((grupo) => {
          const grupoEl = this.criarGrupoHTML(grupo);
@@ -362,7 +363,7 @@ class TransacoesManager {
       });
    }
 
-   agruparPorMes(transacoes) {
+   agruporPorMes(transacoes) {
       const grupos = {};
 
       transacoes.forEach((t) => {
@@ -711,7 +712,6 @@ class TransacoesManager {
                         </select>
                      </div>
 
-                     <!-- NOVO: Campo de Parcelamento -->
                      <div class="form-group" id="grupoParcelamento" style="display: none;">
                         <label class="form-label form-label--required">Número de Parcelas</label>
                         <select class="form-select" name="num_parcelas" id="numParcelas">
@@ -1385,7 +1385,7 @@ class TransacoesManager {
                            <line x1="12" y1="16" x2="12" y2="12"></line>
                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
                         </svg>
-                        <span>As ${numParcelas} parcelas foram adicionadas automaticamente nos próximos meses. Você pode vê-las alterando o filtro de período.</span>
+                        <span>As ${numParcelas} parcelas foram adicionadas automaticamente nos próximos meses. Use o navegador de meses para vê-las.</span>
                      </div>
                   </div>
                </div>
