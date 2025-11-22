@@ -57,14 +57,24 @@ class Navigation {
                </div>
 
                <div class="sidebar__item" data-page="transacoes">
-                  <div class="sidebar__icon">
-                     <svg viewBox="0 0 24 24">
-                        <line x1="12" y1="1" x2="12" y2="23"></line>
-                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                     </svg>
-                  </div>
-                  <span class="sidebar__label">Transações</span>
+               <div class="sidebar__icon">
+                  <svg viewBox="0 0 24 24">
+                     <line x1="12" y1="1" x2="12" y2="23"></line>
+                     <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                  </svg>
                </div>
+               <span class="sidebar__label">Transações</span>
+            </div>
+
+            <div class="sidebar__item" data-page="planejamento">
+               <div class="sidebar__icon">
+                  <svg viewBox="0 0 24 24">
+                     <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                     <circle cx="12" cy="12" r="10"></circle>
+                  </svg>
+               </div>
+               <span class="sidebar__label">Planejamento</span>
+            </div>
 
                <div class="sidebar__item" data-page="perfil">
                   <div class="sidebar__icon">
