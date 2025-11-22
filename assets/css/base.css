@@ -65,7 +65,7 @@
    --z-popover: 500;
    --z-tooltip: 600;
 
-   --nav-height: 80px;
+   --nav-height: 90px;
    --sidebar-width: 0px;
 }
 
@@ -114,7 +114,7 @@ body {
       var(--primary-gradient-end) 100%
    );
    min-height: 100vh;
-   padding-bottom: var(--nav-height);
+   padding-bottom: calc(var(--nav-height) + env(safe-area-inset-bottom, 0px));
    padding-left: var(--sidebar-width);
    line-height: 1.5;
    overflow-x: hidden;

@@ -176,18 +176,20 @@
 
 .nav-bar {
    position: fixed;
-   bottom: 0;
+   bottom: env(safe-area-inset-bottom, 0px);
    left: 0;
    right: 0;
    background: var(--nav-bg);
    backdrop-filter: blur(10px);
    -webkit-backdrop-filter: blur(10px);
-   padding: 12px var(--spacing-md) var(--spacing-md);
+   padding: 0px var(--spacing-md)
+      calc(var(--spacing-sm) + env(safe-area-inset-bottom, 0px));
    display: flex;
    justify-content: space-around;
    align-items: center;
+   min-height: 78px;
    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
+   box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.25);
    z-index: var(--z-fixed);
 }
 
@@ -204,7 +206,7 @@
 }
 
 .nav-item.active {
-   transform: translateY(-10px);
+   transform: translateY(-16px);
 }
 
 .nav-icon {
@@ -223,7 +225,7 @@
       var(--primary-gradient-start) 0%,
       var(--primary-gradient-end) 100%
    );
-   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+   box-shadow: 0 6px 18px rgba(102, 126, 234, 0.45);
 }
 
 .nav-item:not(.active) .nav-icon {
