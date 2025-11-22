@@ -420,12 +420,19 @@ class TransacoesManager {
       );
       const statusInfo = this.getStatusInfo(transacao.status);
 
+      const parcelaInfo =
+         transacao.parcelado &&
+         transacao.num_parcela_atual &&
+         transacao.total_parcelas
+            ? ` (${transacao.num_parcela_atual}/${transacao.total_parcelas})`
+            : "";
+
       div.innerHTML = `
          <div class="transacao-item__header">
             <div class="transacao-item__info">
                <div class="transacao-item__descricao">${
                   transacao.descricao
-               }</div>
+               }${parcelaInfo}</div>
                <div class="transacao-item__categoria">
                   ${
                      categoria
@@ -520,9 +527,70 @@ class TransacoesManager {
       });
    }
 
+   gerarParcelas(transacaoBase, numParcelas) {
+      const parcelas = [];
+      const valorParcela = transacaoBase.valor / numParcelas;
+      const dataInicio = new Date(transacaoBase.data_vencimento + "T00:00:00");
+      const parcelamentoId = Date.now();
+
+      for (let i = 1; i <= numParcelas; i++) {
+         const dataVencimento = new Date(dataInicio);
+         dataVencimento.setMonth(dataVencimento.getMonth() + (i - 1));
+
+         const parcela = {
+            ...transacaoBase,
+            id: Date.now() + i,
+            valor: valorParcela,
+            valor_parcela: valorParcela,
+            num_parcela_atual: i,
+            total_parcelas: numParcelas,
+            parcelamento_id: parcelamentoId,
+            parcelado: true,
+            data_vencimento: dataVencimento.toISOString().split("T")[0],
+            descricao: `${transacaoBase.descricao}`,
+            valorPago: null,
+            data_pagamento: null,
+            status: "pendente",
+            criado_em: new Date().toISOString(),
+         };
+
+         parcelas.push(parcela);
+      }
+
+      return parcelas;
+   }
+
+   atualizarTextoParcelamento(valorTotal) {
+      const select = document.getElementById("numParcelas");
+      if (!select || !valorTotal) return;
+
+      for (let i = 2; i <= 24; i++) {
+         const option = select.querySelector(`option[value="${i}"]`);
+         if (option) {
+            const valorParcela = valorTotal / i;
+            option.textContent = `${i}x de ${this.formatarMoeda(valorParcela)}`;
+         }
+      }
+   }
+
+   permiteParcelamento(metodo) {
+      const metodosComParcelamento = ["credito", "boleto", "pix"];
+      return metodosComParcelamento.includes(metodo);
+   }
+
    abrirModalNovaTransacao(transacao = null) {
       const isEdit = transacao !== null;
       const hoje = new Date().toISOString().split("T")[0];
+
+      if (isEdit && transacao.parcelado) {
+         if (
+            !confirm(
+               "Esta é uma parcela de um parcelamento. As alterações afetarão apenas esta parcela. Deseja continuar?"
+            )
+         ) {
+            return;
+         }
+      }
 
       const modalHTML = `
          <div class="modal-overlay" onclick="if(event.target === this) transacoesManager.fecharModal()">
@@ -566,10 +634,10 @@ class TransacoesManager {
                      </div>
 
                      <div class="form-group">
-                        <label class="form-label form-label--required">Valor</label>
+                        <label class="form-label form-label--required">Valor Total</label>
                         <div class="input-group">
                            <span class="input-prefix">R$</span>
-                           <input type="number" class="form-input" name="valor" 
+                           <input type="number" class="form-input" name="valor" id="valorTotal"
                                   placeholder="0,00" step="0.01" 
                                   value="${
                                      isEdit ? transacao.valor : ""
@@ -641,6 +709,26 @@ class TransacoesManager {
                                  : ""
                            }>🏦 Transferência</option>
                         </select>
+                     </div>
+
+                     <!-- NOVO: Campo de Parcelamento -->
+                     <div class="form-group" id="grupoParcelamento" style="display: none;">
+                        <label class="form-label form-label--required">Número de Parcelas</label>
+                        <select class="form-select" name="num_parcelas" id="numParcelas">
+                           <option value="1">À vista (sem parcelamento)</option>
+                           ${Array.from({ length: 24 }, (_, i) => i + 2)
+                              .map(
+                                 (n) => `
+                              <option value="${n}">
+                                 ${n}x de R$ 0,00
+                              </option>
+                           `
+                              )
+                              .join("")}
+                        </select>
+                        <p class="form-hint" id="infoParcelamento" style="color: var(--primary-color); font-size: 13px; margin-top: 8px;">
+                           💡 O valor será dividido em parcelas iguais e lançado automaticamente nos próximos meses
+                        </p>
                      </div>
 
                      <div class="form-group" id="grupoCartao" style="display: none;">
@@ -761,19 +849,42 @@ class TransacoesManager {
    setupFormListeners() {
       const metodoPagamento = document.getElementById("metodoPagamento");
       const grupoCartao = document.getElementById("grupoCartao");
+      const grupoParcelamento = document.getElementById("grupoParcelamento");
+      const valorTotal = document.getElementById("valorTotal");
+      const numParcelas = document.getElementById("numParcelas");
 
-      if (metodoPagamento && grupoCartao) {
-         const toggleCartao = () => {
+      if (metodoPagamento && grupoCartao && grupoParcelamento) {
+         const toggleCampos = () => {
             const metodo = metodoPagamento.value;
+
             if (metodo === "debito" || metodo === "credito") {
                grupoCartao.style.display = "flex";
             } else {
                grupoCartao.style.display = "none";
             }
+
+            if (this.permiteParcelamento(metodo)) {
+               grupoParcelamento.style.display = "flex";
+            } else {
+               grupoParcelamento.style.display = "none";
+            }
          };
 
-         toggleCartao();
-         metodoPagamento.addEventListener("change", toggleCartao);
+         toggleCampos();
+         metodoPagamento.addEventListener("change", toggleCampos);
+      }
+
+      if (valorTotal && numParcelas) {
+         const atualizarParcelas = () => {
+            const valor = parseFloat(valorTotal.value);
+            if (valor && valor > 0) {
+               this.atualizarTextoParcelamento(valor);
+            }
+         };
+
+         atualizarParcelas();
+         valorTotal.addEventListener("input", atualizarParcelas);
+         valorTotal.addEventListener("change", atualizarParcelas);
       }
 
       const checkRecorrente = document.querySelector(
@@ -804,8 +915,9 @@ class TransacoesManager {
       }
 
       const formData = new FormData(form);
+      const numParcelas = parseInt(formData.get("num_parcelas")) || 1;
 
-      const transacao = {
+      const transacaoBase = {
          tipo: formData.get("tipo"),
          descricao: formData.get("descricao"),
          valor: parseFloat(formData.get("valor")),
@@ -830,6 +942,10 @@ class TransacoesManager {
          parcelado: false,
          tags: [],
          recorrencia_id: null,
+         num_parcela_atual: null,
+         total_parcelas: null,
+         valor_parcela: null,
+         parcelamento_id: null,
       };
 
       if (id) {
@@ -837,19 +953,34 @@ class TransacoesManager {
          if (index !== -1) {
             this.transacoes[index] = {
                ...this.transacoes[index],
-               ...transacao,
+               ...transacaoBase,
                atualizado_em: new Date().toISOString(),
             };
          }
-      } else {
-         transacao.id = Date.now();
-         transacao.criado_em = new Date().toISOString();
-         this.transacoes.push(transacao);
-      }
 
-      this.saveData();
-      this.fecharModal();
-      this.renderizar();
+         this.saveData();
+         this.fecharModal();
+         this.renderizar();
+      } else {
+         if (numParcelas > 1) {
+            const parcelas = this.gerarParcelas(transacaoBase, numParcelas);
+            this.transacoes.push(...parcelas);
+            this.saveData();
+
+            this.mostrarModalSucessoParcelamento(
+               numParcelas,
+               transacaoBase.valor / numParcelas
+            );
+         } else {
+            transacaoBase.id = Date.now();
+            transacaoBase.criado_em = new Date().toISOString();
+            this.transacoes.push(transacaoBase);
+
+            this.saveData();
+            this.fecharModal();
+            this.renderizar();
+         }
+      }
    }
 
    abrirModalTransacao(transacao) {
@@ -876,6 +1007,20 @@ class TransacoesManager {
             : "Data de Pagamento";
       const labelAcao =
          transacao.tipo === "receita" ? "Recebimento" : "Pagamento";
+
+      const infoParcelamento =
+         transacao.parcelado &&
+         transacao.num_parcela_atual &&
+         transacao.total_parcelas
+            ? `
+         <div class="list-item">
+            <span class="list-item__label">Parcelamento</span>
+            <span class="list-item__value">
+               Parcela ${transacao.num_parcela_atual} de ${transacao.total_parcelas}
+            </span>
+         </div>
+      `
+            : "";
 
       const modalHTML = `
          <div class="modal-overlay" onclick="if(event.target === this) transacoesManager.fecharModal()">
@@ -971,6 +1116,8 @@ class TransacoesManager {
                            )} ${this.getMetodoNome(transacao.metodo_pagamento)}
                         </span>
                      </div>
+
+                     ${infoParcelamento}
 
                      ${
                         cartao
@@ -1099,7 +1246,9 @@ class TransacoesManager {
 
                   <div class="modal-pagamento__valores">
                      <div class="modal-pagamento__valor-item">
-                        <span class="modal-pagamento__valor-label">Valor Provisionado</span>
+                        <span class="modal-pagamento__valor-label">Valor ${
+                           transacao.parcelado ? "da Parcela" : "Total"
+                        }</span>
                         <span class="modal-pagamento__valor-valor">${this.formatarMoeda(
                            transacao.valor
                         )}</span>
@@ -1194,6 +1343,82 @@ class TransacoesManager {
       }, 50);
    }
 
+   mostrarModalSucessoParcelamento(numParcelas, valorParcela) {
+      const modalHTML = `
+         <div class="modal-overlay" onclick="if(event.target === this) transacoesManager.fecharModalSucesso()">
+            <div class="modal modal-sucesso">
+               <div class="modal__header">
+                  <h2 class="modal__title">✅ Parcelamento Criado!</h2>
+                  <button class="modal__close" onclick="transacoesManager.fecharModalSucesso()">
+                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                     </svg>
+                  </button>
+               </div>
+               <div class="modal__body">
+                  <div class="sucesso-container">
+                     <div class="sucesso-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                           <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                     </div>
+                     
+                     <h3 class="sucesso-titulo">Parcelamento criado com sucesso!</h3>
+                     
+                     <div class="sucesso-info">
+                        <div class="sucesso-info-item">
+                           <span class="sucesso-info-label">Número de Parcelas</span>
+                           <span class="sucesso-info-valor">${numParcelas}x</span>
+                        </div>
+                        <div class="sucesso-info-item">
+                           <span class="sucesso-info-label">Valor por Parcela</span>
+                           <span class="sucesso-info-valor">${this.formatarMoeda(
+                              valorParcela
+                           )}</span>
+                        </div>
+                     </div>
+                     
+                     <div class="sucesso-mensagem">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; flex-shrink: 0;">
+                           <circle cx="12" cy="12" r="10"></circle>
+                           <line x1="12" y1="16" x2="12" y2="12"></line>
+                           <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        <span>As ${numParcelas} parcelas foram adicionadas automaticamente nos próximos meses. Você pode vê-las alterando o filtro de período.</span>
+                     </div>
+                  </div>
+               </div>
+               <div class="modal__footer">
+                  <button class="btn btn-primary" onclick="transacoesManager.fecharModalSucesso()">
+                     Entendido
+                  </button>
+               </div>
+            </div>
+         </div>
+      `;
+
+      const modalContainer = document.getElementById("modalContainer");
+      modalContainer.innerHTML = modalHTML;
+
+      setTimeout(() => {
+         const overlay = modalContainer.querySelector(".modal-overlay");
+         if (overlay) {
+            overlay.style.opacity = "1";
+            const modal = overlay.querySelector(".modal");
+            if (modal) {
+               modal.style.transform = "scale(1)";
+               modal.style.opacity = "1";
+            }
+         }
+      }, 10);
+   }
+
+   fecharModalSucesso() {
+      this.fecharModal();
+      this.renderizar();
+   }
+
    confirmarPagamento(transacaoId) {
       const transacao = this.transacoes.find((t) => t.id === transacaoId);
       if (!transacao) return;
@@ -1276,6 +1501,14 @@ class TransacoesManager {
       const transacao = this.transacoes.find((t) => t.id === transacaoId);
       if (!transacao) return;
 
+      let mensagem = `Você está prestes a excluir a transação:\n\n${
+         transacao.descricao
+      }\n${this.formatarMoeda(transacao.valor)}`;
+
+      if (transacao.parcelado && transacao.parcelamento_id) {
+         mensagem += `\n\n⚠️ Esta é a parcela ${transacao.num_parcela_atual} de ${transacao.total_parcelas}.\nApenas esta parcela será excluída.`;
+      }
+
       const modalHTML = `
          <div class="modal-overlay" onclick="if(event.target === this) transacoesManager.fecharModal()">
             <div class="modal modal-confirmacao">
@@ -1294,12 +1527,8 @@ class TransacoesManager {
                      <div class="confirmacao-box__conteudo">
                         <h3 class="confirmacao-box__titulo">Tem certeza?</h3>
                         <p class="confirmacao-box__texto">
-                           Você está prestes a excluir a transação:
+                           ${mensagem.replace(/\n/g, "<br>")}
                         </p>
-                        <div class="confirmacao-box__info">
-                           <strong>${transacao.descricao}</strong>
-                           <span>${this.formatarMoeda(transacao.valor)}</span>
-                        </div>
                         <p class="confirmacao-box__aviso">
                            ⚠️ Esta ação não pode ser desfeita!
                         </p>
@@ -1308,8 +1537,21 @@ class TransacoesManager {
                </div>
                <div class="modal__footer">
                   <button class="btn btn-secondary" onclick="transacoesManager.fecharModal()">Cancelar</button>
+                  ${
+                     transacao.parcelado && transacao.parcelamento_id
+                        ? `
+                     <button class="btn btn-danger" onclick="transacoesManager.excluirTodasParcelas(${transacao.parcelamento_id})">
+                        Excluir Todas as Parcelas
+                     </button>
+                  `
+                        : ""
+                  }
                   <button class="btn btn-danger" onclick="transacoesManager.confirmarExclusao(${transacaoId})">
-                     Excluir Transação
+                     ${
+                        transacao.parcelado
+                           ? "Excluir Esta Parcela"
+                           : "Excluir Transação"
+                     }
                   </button>
                </div>
             </div>
@@ -1330,6 +1572,28 @@ class TransacoesManager {
             }
          }
       }, 10);
+   }
+
+   excluirTodasParcelas(parcelamentoId) {
+      if (
+         confirm(
+            "Tem certeza que deseja excluir TODAS as parcelas deste parcelamento?"
+         )
+      ) {
+         const parcelasRemovidas = this.transacoes.filter(
+            (t) => t.parcelamento_id === parcelamentoId
+         ).length;
+
+         this.transacoes = this.transacoes.filter(
+            (t) => t.parcelamento_id !== parcelamentoId
+         );
+
+         this.saveData();
+         this.fecharModal();
+         this.renderizar();
+
+         alert(`${parcelasRemovidas} parcelas foram excluídas com sucesso.`);
+      }
    }
 
    confirmarExclusao(transacaoId) {
@@ -1370,84 +1634,6 @@ class TransacoesManager {
          month: "long",
          year: "numeric",
       });
-   }
-
-   obterDadosDashboard() {
-      this.atualizarStatus();
-
-      const hoje = new Date();
-      const primeiroDiaMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
-      const ultimoDiaMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
-
-      const transacoesMesAtual = this.transacoes.filter((t) => {
-         const data = new Date(t.data_vencimento + "T00:00:00");
-         return data >= primeiroDiaMes && data <= ultimoDiaMes;
-      });
-
-      let totalReceitas = 0;
-      let totalDespesas = 0;
-      let totalReceitasPagas = 0;
-      let totalDespesasPagas = 0;
-      let contaPagos = 0;
-      let contaPendentes = 0;
-
-      const despesasPorCategoria = {};
-
-      transacoesMesAtual.forEach((t) => {
-         const valor = t.valorPago !== null ? t.valorPago : t.valor;
-
-         if (t.tipo === "receita") {
-            totalReceitas += valor;
-            if (t.status === "pago") {
-               totalReceitasPagas += t.valorPago;
-            }
-         } else {
-            totalDespesas += valor;
-            if (t.status === "pago") {
-               totalDespesasPagas += t.valorPago;
-            }
-
-            const categoria = this.categorias.find(
-               (c) => c.id === t.categoria_id
-            );
-            const categoriaNome = categoria ? categoria.nome : "Outros";
-            const categoriaIcone = categoria ? categoria.icone : "📦";
-            const categoriaCor = categoria ? categoria.cor : "#64748b";
-
-            if (!despesasPorCategoria[categoriaNome]) {
-               despesasPorCategoria[categoriaNome] = {
-                  nome: categoriaNome,
-                  icone: categoriaIcone,
-                  cor: categoriaCor,
-                  valor: 0,
-               };
-            }
-            despesasPorCategoria[categoriaNome].valor += valor;
-         }
-
-         if (t.status === "pago") {
-            contaPagos++;
-         } else if (t.status === "pendente" || t.status === "atrasado") {
-            contaPendentes++;
-         }
-      });
-
-      return {
-         totalReceitas,
-         totalDespesas,
-         saldo: totalReceitas - totalDespesas,
-         totalReceitasPagas,
-         totalDespesasPagas,
-         diferencaReceitas: totalReceitas - totalReceitasPagas,
-         diferencaDespesas: totalDespesas - totalDespesasPagas,
-         contaPagos,
-         contaPendentes,
-         totalAPagar: totalDespesas - totalDespesasPagas,
-         despesasPorCategoria: Object.values(despesasPorCategoria).sort(
-            (a, b) => b.valor - a.valor
-         ),
-         transacoesMesAtual,
-      };
    }
 }
 

@@ -596,6 +596,141 @@
    color: var(--text-secondary);
 }
 
+.modal-sucesso {
+   max-width: 500px;
+   transform: scale(0.9);
+   opacity: 0;
+   transition: all 0.3s ease;
+}
+
+.sucesso-container {
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   text-align: center;
+   padding: 20px 0;
+}
+
+.sucesso-icon {
+   width: 80px;
+   height: 80px;
+   border-radius: 50%;
+   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+   display: flex;
+   align-items: center;
+   justify-content: center;
+   margin-bottom: 24px;
+   animation: successPulse 0.6s ease;
+}
+
+.sucesso-icon svg {
+   width: 48px;
+   height: 48px;
+   stroke: white;
+   stroke-width: 3;
+   animation: checkDraw 0.6s ease 0.2s both;
+}
+
+@keyframes successPulse {
+   0% {
+      transform: scale(0);
+      opacity: 0;
+   }
+   50% {
+      transform: scale(1.1);
+   }
+   100% {
+      transform: scale(1);
+      opacity: 1;
+   }
+}
+
+@keyframes checkDraw {
+   0% {
+      stroke-dasharray: 50;
+      stroke-dashoffset: 50;
+   }
+   100% {
+      stroke-dasharray: 50;
+      stroke-dashoffset: 0;
+   }
+}
+
+.sucesso-titulo {
+   font-size: 24px;
+   font-weight: 600;
+   color: var(--text-primary);
+   margin-bottom: 24px;
+}
+
+.sucesso-info {
+   width: 100%;
+   display: grid;
+   grid-template-columns: repeat(2, 1fr);
+   gap: 16px;
+   margin-bottom: 24px;
+}
+
+.sucesso-info-item {
+   background: var(--bg-secondary);
+   padding: 20px;
+   border-radius: 12px;
+   display: flex;
+   flex-direction: column;
+   gap: 8px;
+}
+
+.sucesso-info-label {
+   font-size: 13px;
+   color: var(--text-secondary);
+   font-weight: 500;
+}
+
+.sucesso-info-valor {
+   font-size: 24px;
+   font-weight: 700;
+   color: var(--primary-color);
+}
+
+.sucesso-mensagem {
+   display: flex;
+   align-items: flex-start;
+   gap: 12px;
+   padding: 16px;
+   background: rgba(102, 126, 234, 0.1);
+   border-radius: 12px;
+   border-left: 4px solid var(--primary-color);
+   text-align: left;
+   font-size: 14px;
+   color: var(--text-secondary);
+   line-height: 1.6;
+}
+
+.sucesso-mensagem svg {
+   color: var(--primary-color);
+   margin-top: 2px;
+}
+
+@media (max-width: 480px) {
+   .sucesso-info {
+      grid-template-columns: 1fr;
+   }
+
+   .sucesso-titulo {
+      font-size: 20px;
+   }
+
+   .sucesso-icon {
+      width: 64px;
+      height: 64px;
+   }
+
+   .sucesso-icon svg {
+      width: 36px;
+      height: 36px;
+   }
+}
+
 @media (min-width: 1024px) {
    .visao-analitica {
       display: grid;
