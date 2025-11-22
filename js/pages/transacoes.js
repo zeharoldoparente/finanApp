@@ -59,6 +59,8 @@ class TransacoesManager {
             JSON.stringify(this.transacoes)
          );
          console.log("Transações salvas");
+
+         window.dispatchEvent(new CustomEvent("transacoesAtualizadas"));
       } catch (error) {
          console.error("Erro ao salvar:", error);
       }
@@ -866,6 +868,15 @@ class TransacoesManager {
       const cartao = this.cartoes.find((c) => c.id === transacao.cartao_id);
       const conta = this.contas.find((c) => c.id === transacao.conta_id);
 
+      const labelValorPago =
+         transacao.tipo === "receita" ? "Valor Recebido" : "Valor Pago";
+      const labelDataPagamento =
+         transacao.tipo === "receita"
+            ? "Data de Recebimento"
+            : "Data de Pagamento";
+      const labelAcao =
+         transacao.tipo === "receita" ? "Recebimento" : "Pagamento";
+
       const modalHTML = `
          <div class="modal-overlay" onclick="if(event.target === this) transacoesManager.fecharModal()">
             <div class="modal modal-pagamento">
@@ -913,7 +924,7 @@ class TransacoesManager {
                      </div>
 
                      <div class="list-item">
-                        <span class="list-item__label">Valor Pago</span>
+                        <span class="list-item__label">${labelValorPago}</span>
                         <span class="list-item__value list-item__value--positive">
                            ${this.formatarMoeda(transacao.valorPago)}
                         </span>
@@ -946,7 +957,7 @@ class TransacoesManager {
                      </div>
 
                      <div class="list-item">
-                        <span class="list-item__label">Data de Pagamento</span>
+                        <span class="list-item__label">${labelDataPagamento}</span>
                         <span class="list-item__value">${this.formatarData(
                            transacao.data_pagamento
                         )}</span>
@@ -1004,8 +1015,17 @@ class TransacoesManager {
                      }
                   </div>
                </div>
-               <div class="modal__footer">
+               <div class="modal__footer" style="flex-wrap: wrap;">
                   <button class="btn btn-secondary" onclick="transacoesManager.fecharModal()">Fechar</button>
+                  <button class="btn" style="background: var(--warning-color); color: white;" onclick="transacoesManager.desfazerPagamento(${
+                     transacao.id
+                  })">
+                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;">
+                        <polyline points="1 4 1 10 7 10"></polyline>
+                        <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                     </svg>
+                     Desfazer ${labelAcao}
+                  </button>
                   <button class="btn btn-primary" onclick="transacoesManager.editarTransacao(${
                      transacao.id
                   })">
@@ -1043,11 +1063,15 @@ class TransacoesManager {
       );
       const statusInfo = this.getStatusInfo(transacao.status);
 
+      const labelAcao =
+         transacao.tipo === "receita" ? "Recebimento" : "Pagamento";
+      const labelVerbo = transacao.tipo === "receita" ? "Recebi" : "Paguei";
+
       const modalHTML = `
          <div class="modal-overlay" onclick="if(event.target === this) transacoesManager.fecharModal()">
             <div class="modal modal-pagamento">
                <div class="modal__header">
-                  <h2 class="modal__title">Confirmar Pagamento</h2>
+                  <h2 class="modal__title">Confirmar ${labelAcao}</h2>
                   <button class="modal__close" onclick="transacoesManager.fecharModal()">
                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -1086,26 +1110,32 @@ class TransacoesManager {
                      <div class="opcao-pagamento" data-opcao="mesmo-valor">
                         <div class="opcao-pagamento__header">
                            <span class="opcao-pagamento__icone">✅</span>
-                           <span class="opcao-pagamento__titulo">Paguei o mesmo valor</span>
+                           <span class="opcao-pagamento__titulo">${labelVerbo} o mesmo valor</span>
                         </div>
                         <p class="opcao-pagamento__descricao">
-                           Confirmar pagamento de ${this.formatarMoeda(
-                              transacao.valor
-                           )}
+                           Confirmar ${labelAcao.toLowerCase()} de ${this.formatarMoeda(
+         transacao.valor
+      )}
                         </p>
                      </div>
 
                      <div class="opcao-pagamento" data-opcao="valor-diferente">
                         <div class="opcao-pagamento__header">
                            <span class="opcao-pagamento__icone">💵</span>
-                           <span class="opcao-pagamento__titulo">Paguei valor diferente</span>
+                           <span class="opcao-pagamento__titulo">${labelVerbo} valor diferente</span>
                         </div>
                         <p class="opcao-pagamento__descricao">
-                           Informar o valor que foi pago
+                           Informar o valor que foi ${
+                              transacao.tipo === "receita" ? "recebido" : "pago"
+                           }
                         </p>
                         <div class="opcao-pagamento__input">
                            <div class="form-group">
-                              <label class="form-label">Valor Pago</label>
+                              <label class="form-label">Valor ${
+                                 transacao.tipo === "receita"
+                                    ? "Recebido"
+                                    : "Pago"
+                              }</label>
                               <div class="input-group">
                                  <span class="input-prefix">R$</span>
                                  <input type="number" class="form-input" id="valorPago" 
@@ -1123,7 +1153,7 @@ class TransacoesManager {
                   <button class="btn btn-primary" onclick="transacoesManager.confirmarPagamento(${
                      transacao.id
                   })">
-                     Confirmar Pagamento
+                     Confirmar ${labelAcao}
                   </button>
                </div>
             </div>
@@ -1198,6 +1228,28 @@ class TransacoesManager {
       this.saveData();
       this.fecharModal();
       this.renderizar();
+   }
+
+   desfazerPagamento(transacaoId) {
+      const transacao = this.transacoes.find((t) => t.id === transacaoId);
+      if (!transacao) return;
+
+      const labelAcao =
+         transacao.tipo === "receita" ? "recebimento" : "pagamento";
+
+      if (
+         confirm(
+            `Tem certeza que deseja desfazer o ${labelAcao} desta transação?`
+         )
+      ) {
+         transacao.valorPago = null;
+         transacao.data_pagamento = null;
+         transacao.status = "pendente";
+
+         this.saveData();
+         this.fecharModal();
+         this.renderizar();
+      }
    }
 
    fecharModal() {
@@ -1318,6 +1370,84 @@ class TransacoesManager {
          month: "long",
          year: "numeric",
       });
+   }
+
+   obterDadosDashboard() {
+      this.atualizarStatus();
+
+      const hoje = new Date();
+      const primeiroDiaMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+      const ultimoDiaMes = new Date(hoje.getFullYear(), hoje.getMonth() + 1, 0);
+
+      const transacoesMesAtual = this.transacoes.filter((t) => {
+         const data = new Date(t.data_vencimento + "T00:00:00");
+         return data >= primeiroDiaMes && data <= ultimoDiaMes;
+      });
+
+      let totalReceitas = 0;
+      let totalDespesas = 0;
+      let totalReceitasPagas = 0;
+      let totalDespesasPagas = 0;
+      let contaPagos = 0;
+      let contaPendentes = 0;
+
+      const despesasPorCategoria = {};
+
+      transacoesMesAtual.forEach((t) => {
+         const valor = t.valorPago !== null ? t.valorPago : t.valor;
+
+         if (t.tipo === "receita") {
+            totalReceitas += valor;
+            if (t.status === "pago") {
+               totalReceitasPagas += t.valorPago;
+            }
+         } else {
+            totalDespesas += valor;
+            if (t.status === "pago") {
+               totalDespesasPagas += t.valorPago;
+            }
+
+            const categoria = this.categorias.find(
+               (c) => c.id === t.categoria_id
+            );
+            const categoriaNome = categoria ? categoria.nome : "Outros";
+            const categoriaIcone = categoria ? categoria.icone : "📦";
+            const categoriaCor = categoria ? categoria.cor : "#64748b";
+
+            if (!despesasPorCategoria[categoriaNome]) {
+               despesasPorCategoria[categoriaNome] = {
+                  nome: categoriaNome,
+                  icone: categoriaIcone,
+                  cor: categoriaCor,
+                  valor: 0,
+               };
+            }
+            despesasPorCategoria[categoriaNome].valor += valor;
+         }
+
+         if (t.status === "pago") {
+            contaPagos++;
+         } else if (t.status === "pendente" || t.status === "atrasado") {
+            contaPendentes++;
+         }
+      });
+
+      return {
+         totalReceitas,
+         totalDespesas,
+         saldo: totalReceitas - totalDespesas,
+         totalReceitasPagas,
+         totalDespesasPagas,
+         diferencaReceitas: totalReceitas - totalReceitasPagas,
+         diferencaDespesas: totalDespesas - totalDespesasPagas,
+         contaPagos,
+         contaPendentes,
+         totalAPagar: totalDespesas - totalDespesasPagas,
+         despesasPorCategoria: Object.values(despesasPorCategoria).sort(
+            (a, b) => b.valor - a.valor
+         ),
+         transacoesMesAtual,
+      };
    }
 }
 

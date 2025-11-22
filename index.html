@@ -15,69 +15,110 @@
    <body>
       <header class="header">
          <h1 class="header__title">Visão Geral</h1>
-         <p class="header__subtitle">Novembro 2024</p>
+         <p class="header__subtitle">Carregando...</p>
       </header>
+
       <main class="dashboard">
          <section class="dashboard__section">
             <div class="balance-card">
-               <div class="balance-card__label">Saldo Atual</div>
-               <div class="balance-card__value">R$ 3.847,50</div>
+               <div class="balance-card__label">💰 Saldo Total das Contas</div>
+               <div class="balance-card__value">R$ 0,00</div>
                <div class="balance-card__period">Atualizado agora</div>
             </div>
          </section>
          <section class="dashboard__section">
             <div class="card">
-               <h2 class="card__title">Resumo do Mês</h2>
+               <h2 class="card__title">📊 Resumo do Mês</h2>
+               <div id="resumoMes">
+                  <div class="list-item">
+                     <span class="list-item__label">Provisionado</span>
+                     <span class="list-item__value list-item__value--neutral"
+                        >R$ 0,00</span
+                     >
+                  </div>
 
-               <div class="list-item">
-                  <span class="list-item__label">Provisionado</span>
-                  <span class="list-item__value list-item__value--neutral"
-                     >R$ 5.200,00</span
-                  >
-               </div>
+                  <div class="list-item">
+                     <span class="list-item__label">Real (Gastos)</span>
+                     <span class="list-item__value list-item__value--negative"
+                        >R$ 0,00</span
+                     >
+                  </div>
 
-               <div class="list-item">
-                  <span class="list-item__label">Real (Gastos)</span>
-                  <span class="list-item__value list-item__value--negative"
-                     >R$ 3.890,00</span
-                  >
-               </div>
-
-               <div class="list-item">
-                  <span class="list-item__label">Diferença</span>
-                  <span class="list-item__value list-item__value--positive"
-                     >R$ 1.310,00</span
-                  >
+                  <div class="list-item">
+                     <span class="list-item__label">Diferença</span>
+                     <span class="list-item__value list-item__value--positive"
+                        >R$ 0,00</span
+                     >
+                  </div>
                </div>
             </div>
          </section>
          <section class="dashboard__section">
             <div class="card">
-               <h2 class="card__title">Status de Pagamentos</h2>
-
-               <div class="status-grid">
-                  <div class="status-box">
-                     <div class="status-box__label">Pagos</div>
-                     <div class="status-box__value text-success">15</div>
+               <h2 class="card__title">💳 Status de Pagamentos</h2>
+               <div id="statusPagamentos">
+                  <div class="status-grid">
+                     <div class="status-box">
+                        <div class="status-box__label">Pagos</div>
+                        <div class="status-box__value text-success">0</div>
+                     </div>
+                     <div class="status-box">
+                        <div class="status-box__label">A Pagar</div>
+                        <div class="status-box__value text-warning">0</div>
+                     </div>
                   </div>
-                  <div class="status-box">
-                     <div class="status-box__label">A Pagar</div>
-                     <div class="status-box__value text-warning">8</div>
+
+                  <div class="list-item mt-md">
+                     <span class="list-item__label">Total a Pagar</span>
+                     <span class="list-item__value list-item__value--warning"
+                        >R$ 0,00</span
+                     >
+                  </div>
+
+                  <div class="list-item">
+                     <span class="list-item__label">Total Pago</span>
+                     <span class="list-item__value list-item__value--negative"
+                        >R$ 0,00</span
+                     >
                   </div>
                </div>
-
-               <div class="list-item mt-md">
-                  <span class="list-item__label">Total a Pagar</span>
-                  <span class="list-item__value list-item__value--warning"
-                     >R$ 1.850,00</span
+            </div>
+         </section>
+         <section class="dashboard__section">
+            <div class="card">
+               <h2 class="card__title">📈 Despesas por Categoria</h2>
+               <div
+                  id="graficoDespesas"
+                  class="chart-container"
+                  style="padding: 0; min-height: auto"
+               >
+                  <div
+                     style="
+                        text-align: center;
+                        padding: 40px;
+                        color: var(--text-secondary);
+                     "
                   >
+                     <div style="font-size: 48px; margin-bottom: 16px">📊</div>
+                     <p>Carregando dados...</p>
+                  </div>
                </div>
-
-               <div class="list-item">
-                  <span class="list-item__label">Total Pago</span>
-                  <span class="list-item__value list-item__value--negative"
-                     >R$ 2.040,00</span
+            </div>
+         </section>
+         <section class="dashboard__section">
+            <div class="card">
+               <h2 class="card__title">📅 Próximos Vencimentos (7 dias)</h2>
+               <div id="proximosVencimentos">
+                  <div
+                     style="
+                        text-align: center;
+                        padding: 40px;
+                        color: var(--text-secondary);
+                     "
                   >
+                     <div style="font-size: 48px; margin-bottom: 16px">⏳</div>
+                     <p>Carregando dados...</p>
+                  </div>
                </div>
             </div>
          </section>
@@ -130,6 +171,7 @@
          </div>
       </nav>
       <script src="./js/components/navigation.js"></script>
+      <script src="./js/pages/dashboard.js"></script>
       <script src="./js/main.js"></script>
    </body>
 </html>
